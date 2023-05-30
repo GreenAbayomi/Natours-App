@@ -1,6 +1,7 @@
 const { Schema, model } = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+// const User = require('./userModel')
 
 const tourSchema = new Schema(
   {
@@ -107,6 +108,12 @@ const tourSchema = new Schema(
         description: String,
         day: Number
       }
+    ],
+    guides: [
+      {
+        type: Schema.ObjectId,
+        ref: 'User'
+      }
     ]
   },
   {
@@ -123,6 +130,13 @@ tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
+
+// tourSchema.pre('save', async  function(next){
+//   const guidesPromises = this.guides.map( async id => await User.findById(id))
+//   this.guides = await Promise.all(guidesPromises)
+//   next()
+// })
+
 tourSchema.post('save', function (doc, next) {
   console.log(doc);
   next();
@@ -134,15 +148,23 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-tourSchema.post(/^find/, function (docs, next) {
-  console.log(`Query took ${Date.now() - this.start} milliseconds`);
-
-  next();
-});
-
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
   console.log(this.pipeline());
+  next();
+});
+
+tourSchema.pre(/^find/, function(next){
+  this.populate({
+    path: 'guides',
+    select: '-__v'
+  })
+  next()
+})
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took ${Date.now() - this.start} milliseconds`);
+
   next();
 });
 const Tour = model('Tour', tourSchema);
