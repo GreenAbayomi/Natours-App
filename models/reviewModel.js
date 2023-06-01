@@ -22,7 +22,7 @@ const reviewSchema = new Schema({
     },
     user:{
         type: Schema.ObjectId,
-        path: 'User',
+        ref: 'User',
         required: [true, 'Review must belong to a user']
     }
 },
@@ -31,6 +31,19 @@ const reviewSchema = new Schema({
   toObject: { virtuals: true },
 })
 
-const Review = new model('review', reviewSchema)
+
+reviewSchema.pre(/^find/, function(next){
+    this.populate({
+        path: 'user',
+        select: 'name photo'
+    })
+    next()
+})
+
+ 
+
+
+
+const Review = new model('Review', reviewSchema)
 
 module.exports = Review
