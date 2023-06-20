@@ -12,26 +12,33 @@ const {
 
 const { protect, restrictTo } = require('../controllers/authController');
 
-const reviewRouter = require('./reviewRoutes')
+const reviewRouter = require('./reviewRoutes');
 
 const router = express.Router();
 
-router.use('/:tourId/reviews', reviewRouter)
+router.use('/:tourId/reviews', reviewRouter);
 
 router.route('/tour-stats').get(getTourStats);
 
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route(
+    protect,
+    restrictTo('admin', 'lead-guide', 'guide'),
+    '/monthly-plan/:year'
+  )
+  .get(getMonthlyPlan);
 
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
 
-router.route('/').get(protect, getAllTours).post(createTour);
+router
+  .route('/')
+  .get(getAllTours)
+  .post(protect, restrictTo('admin', 'lead-guide'), createTour);
 
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(protect, restrictTo('admin', 'lead-guide'), updateTour)
   .delete(protect, restrictTo('admin', 'lead-guide'), deleteTour);
-
-
 
 module.exports = router;

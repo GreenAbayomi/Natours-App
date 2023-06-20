@@ -84,37 +84,36 @@ const tourSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    startLocation:{
+    startLocation: {
       //GeoJSON
-      type:{
+      type: {
         type: String,
         default: 'Point',
-        enum: ['Point']
+        enum: ['Point'],
       },
       coordinates: [Number],
       address: String,
-      description: String
-
+      description: String,
     },
     locations: [
       {
         type: {
           type: String,
           default: 'Point',
-          enum: ['Point']
+          enum: ['Point'],
         },
         coordinates: [Number],
         address: String,
         description: String,
-        day: Number
-      }
+        day: Number,
+      },
     ],
     guides: [
       {
         type: Schema.ObjectId,
-        ref: 'User'
-      }
-    ]
+        ref: 'User',
+      },
+    ],
   },
   {
     toJSON: { virtuals: true },
@@ -130,8 +129,8 @@ tourSchema.virtual('durationWeeks').get(function () {
 tourSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'tour',
-  localField: '_id'
-})
+  localField: '_id',
+});
 
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
@@ -161,13 +160,13 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
-tourSchema.pre(/^find/, function(next){
+tourSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'guides',
-    select: '-__v'
-  })
-  next()
-})
+    select: '-__v',
+  });
+  next();
+});
 
 tourSchema.post(/^find/, function (docs, next) {
   console.log(`Query took ${Date.now() - this.start} milliseconds`);
