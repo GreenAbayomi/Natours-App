@@ -1,3 +1,3 @@
-# Natours Application
+# Finesse Application
 
 Built using modern technologies: node.js, express, mongodb, mongoose and others
