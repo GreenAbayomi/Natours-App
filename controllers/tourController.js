@@ -171,3 +171,20 @@ exports.getMonthlyPlan = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.getToursWithin = (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  if (!lat || !lng) {
+    return next(
+      new AppError(
+        'Please provide the latitude and longitude in the format lat,lng.',
+        400
+      )
+    );
+  }
+  res.status(200).json({
+    status: 'success',
+  });
+};

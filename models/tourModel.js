@@ -41,6 +41,7 @@ const tourSchema = new Schema(
       default: 4.5,
       min: [1.0, 'The rating must be 1.0 and above'],
       max: [5.0, 'The rating must be 5.0 and below'],
+      set: (val) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -121,6 +122,9 @@ const tourSchema = new Schema(
   }
 );
 
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
@@ -144,7 +148,6 @@ tourSchema.pre('save', function (next) {
 // })
 
 tourSchema.post('save', function (doc, next) {
-  console.log(doc);
   next();
 });
 
@@ -156,7 +159,6 @@ tourSchema.pre(/^find/, function (next) {
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this.pipeline());
   next();
 });
 
